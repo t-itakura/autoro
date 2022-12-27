@@ -1,0 +1,6 @@
+# 日時を取得
++get_time_1:
+  action>: GetTime
+  format: 'YYYY-MM-DD HH:mm'
+  timezone: 'Asia/Tokyo'
+  relativeTime: ''

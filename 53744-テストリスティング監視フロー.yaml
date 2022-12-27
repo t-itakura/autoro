@@ -1,0 +1,117 @@
+# 既存のスプレッドシートを取得
++get_spreadsheet_1:
+  action>: GetSpreadsheet
+  provider: gsheet_b14991664c9dfe963261
+  spreadsheet_id: '1wQrkSX4KCEzOGr6PHYKknGdNSNdL-hOV7PewetvBNpo'
+
+# セルの値を取得
++get_cells_1:
+  action>: GetCells
+  spreadsheet: +get_spreadsheet_1
+  range: '検索ワード!A1:A'
+  findAll: false
+
+# 変数に保存
++store_value_1:
+  action>: StoreValue
+  key: csvData1
+  value: +get_cells_1
+
+# 変数に保存
++store_value_2:
+  action>: StoreValue
+  key: currentRow1
+  value: 1
+
+# 各要素について繰り返す
++for_each_1:
+  for_each>:
+    row1: ${csvData1}
+  _do:
+
+    # 変数に保存
+    +store_value_3:
+      action>: StoreValue
+      key: currentRow1
+      value: ${parseInt(currentRow1) + 1}
+
+    # ブラウザを開く
+    +open_browser_1:
+      action>: OpenBrowser
+      url: 'https://www.google.co.jp/search?q=%E3&glp=1&tci=g:1009540&uule=w+CAIQICIRT3Nha2EsT3Nha2EsSmFwYW4&cr=countryJP&lr=lang_null&safe=high&dlnr=1&sei=9O97X-C9G_3B0PEPjsOtsA4'
+      lang: 'ja-JP'
+      timeZone: 'Asia/Tokyo'
+      userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36'
+      headless: true
+      useShadowDomSelector: false
+
+    # 文字入力
+    +type_text_1:
+      action>: TypeText
+      browser: +open_browser_1
+      selector: '.gLFyf'
+      text: ${row1[0]}
+      clearValue: true
+      ignoreError: true
+
+    # クリック
+    +click_1:
+      action>: Click
+      browser: +open_browser_1
+      selector: '#tsf > div:nth-child(2) > div.A8SBwf > div.RNNXgb > button > div > span > svg'
+      confirm: true
+      ignoreError: true
+      timeout: 30000
+      waitForDownload: true
+
+    # スクリーンショットを撮る
+    +take_screenshot_1:
+      action>: TakeScreenshot
+      browser: +open_browser_1
+      full_page: true
+      type: png
+      highResolution: false
+
+    # スクレイピング
+    +scrape_page_1:
+      action>: ScrapePage
+      browser: +open_browser_1
+      selector: a
+      text_only: false
+      ignoreError: true
+
+    # ファイル名を変更
+    +rename_file_1:
+      action>: RenameFile
+      filename: +take_screenshot_1
+      save_as: ${row1[0] + "_PC_gl_" + moment().utcOffset(540).format("YYYYMMDD_HHmmss")}
+
+    # ファイルを保存
+    +save_file_1:
+      action>: SaveFile
+      provider: gdrive_ad834379bd51fd8b6038
+      filename: +rename_file_1
+      directory: 'ラココ/${moment().utcOffset(540).format("YYMMDD_HH")}'
+      createPath: true
+
+    # スクリーンショットを撮る
+    +take_screenshot_2:
+      action>: TakeScreenshot
+      browser: +open_browser_1
+      full_page: true
+      type: png
+      device: 'iPhone 8 Plus landscape'
+
+    # ファイル名を変更
+    +rename_file_2:
+      action>: RenameFile
+      filename: +take_screenshot_2
+      save_as: ${row1[0] + "_SP_gl_" + moment().utcOffset(540).format("YYYYMMDD_HHmmss")}
+
+    # ファイルを保存
+    +save_file_2:
+      action>: SaveFile
+      provider: gdrive_ad834379bd51fd8b6038
+      filename: +rename_file_2
+      directory: 'ラココ/${moment().utcOffset(540).format("YYMMDD_HH")}'
+      createPath: true
